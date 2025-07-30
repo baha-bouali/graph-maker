@@ -23,6 +23,22 @@ export function createSimulation(svg) {
         .radius(25) // Node collision radius
         .strength(0.7)
     )
+    .force("boundary", () => {
+        nodes.forEach(node => {
+            const padding = 25;
+            const x = node.x;
+            const y = node.y;
+
+            // repel from left/right edges
+            if (x < padding) node.vx += (padding - x) * 0.1 * 3;
+            if (x > width - padding) node.vx += (width - padding - x) * 0.1 * 3;
+
+            // repel from top/bottom edges
+            if (y < padding) node.vy += (padding - y) * 0.1 * 3;
+            if (y > height - padding) node.vy += (height - padding - y) * 0.1 * 3;
+
+        });
+    })
     .alphaDecay(0.01) // slower cooling for simulation
     .velocityDecay(0.4); // More fluid Movement
 
