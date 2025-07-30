@@ -6,8 +6,17 @@ body {
   margin: 0;
   background-color: #f9f9f9;
 }
-
-svg {
+#div {
+    display: flex;
+    gap: 5px;
+}
+#svg {
   border: 1px solid #ccc;
   background-color: white;
+}
+
+#graph {
+    border: 1px solid #ccc;
+    display: block;
+    margin: 0 auto;
 }
