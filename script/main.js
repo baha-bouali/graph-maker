@@ -1,5 +1,17 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
+
+let buildMode = false;
+const buildBtn = document.getElementById("toggle-build");
+
+buildBtn.addEventListener("click", () => {
+    buildMode = !buildMode;
+    buildBtn.textContent = buildMode ? "Build Mode: ON" : "Build Mode: OFF";
+    buildBtn.classList.toggle("bg-green-600", buildMode);
+    buildBtn.classList.toggle("bg-red-500", !buildMode);
+    svg.style("cursor", buildMode ? "crosshair" : "default");
+});
+
 const width = 800;
 const height = 500;
 const mindistance = 30;
@@ -12,7 +24,10 @@ const svg = d3.select("svg")
 .attr("viewBox", [-width / 2, -height / 2, width, height])
 .on("mouseleave", mouseleft)
 .on("mousemove", mousemoved)
-.on("click", clicked);
+.on("click", function(event) {
+    if (!buildMode) return;
+    clicked(event);
+});
 
 const simulation = d3.forceSimulation(nodes)
 .force("charge", d3.forceManyBody().strength(-60))
