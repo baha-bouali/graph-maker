@@ -80,11 +80,13 @@ const cursor = svg.append("circle")
   .attr("r", mindistance - 5);
 
 function ticked() {
+  svg.selectAll("g.node")
+    .attr("transform", d => `translate(${d.x},${d.y})`);
+
   node
-    .attr("cx", d => d.x)
-    .attr("cy", d => d.y)
     .attr("stroke", d => d === selectedNode ? "orange" : null)
     .attr("stroke-width", d => d === selectedNode ? 3 : 1);
+
 
   link
     .attr("x1", d => d.source.x)
@@ -183,21 +185,39 @@ function restart() {
     .data(links)
     .join("line");
 
-  node = node
+  const nodeGroup = svg.selectAll("g.node")
     .data(nodes)
     .join(
-      enter => enter.append("circle")
-        .attr("r", 5)
-        .attr("fill", "#3498db")
-        .call(dragger),
+      enter => {
+        const g = enter.append("g")
+          .attr("class", "node")
+          .call(dragger);
+
+        g.append("circle")
+          .attr("r", 10)
+          .attr("fill", "#000000ff");
+
+        g.append("text")
+          .attr("text-anchor", "middle")
+          .attr("dy", 4)
+          .text(d => d.id)
+          .style("fill", "white")
+          .style("font-size", "10px")
+          .style("pointer-events", "none");
+
+        return g;
+      },
       update => update,
       exit => exit.remove()
     );
+
+  node = nodeGroup.select("circle");
 
   simulation.nodes(nodes);
   simulation.force("link").links(links);
   simulation.alpha(1).restart();
 }
+
 
 // Optional: start with 1 node
 buildClick({ clientX: width / 2, clientY: height / 2 });
