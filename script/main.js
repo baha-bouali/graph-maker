@@ -147,6 +147,9 @@ function connectClick(event) {
   } else if (selectedNode !== clickedNode) {
     links.push({ source: selectedNode, target: clickedNode });
     selectedNode = null;
+  } else {
+    // if clicked on already-clicked node, it is unselected
+    selectedNode = null;
   }
 
   restart();
@@ -183,7 +186,19 @@ function drag(simulation) {
 function restart() {
   link = link
     .data(links)
-    .join("line");
+    .join(
+      enter => enter.append("line")
+        .on("click", function(event, d) {
+            event.stopPropagation(); // prevent node deselection
+            const index = links.indexOf(d);
+            if (index != -1){
+              links.splice(index, 1);
+              restart();
+            }
+        }),
+      update => update,
+      exit => exit.remove()
+    );
 
   const nodeGroup = svg.selectAll("g.node")
     .data(nodes)
@@ -221,3 +236,23 @@ function restart() {
 
 // Optional: start with 1 node
 buildClick({ clientX: width / 2, clientY: height / 2 });
+
+
+// Deleting Nodes and Edges
+document.addEventListener("keydown", (event) => {
+  if ((event.key == "Delete" || event.key == "Backspace") && selectedNode){
+    // Remove the node and any connected links
+    const index = nodes.indexOf(selectedNode);
+    if (index !== -1){
+      nodes.splice(index, 1);
+    }
+    // Remove all links connected to the deleted node
+    for (let i = links.length - 1; i >= 0; i--){
+      if (links[i].source == selectedNode || links[i].target == selectedNode){
+        links.splice(i, 1);
+      }
+    }
+    selectedNode = null;
+    restart();
+  }
+});
